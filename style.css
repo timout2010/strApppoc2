@@ -1,0 +1,421 @@
+#wrapper {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 10px;
+    box-sizing: border-box;
+}
+
+#top {
+    display: flex;
+    gap: 10px;
+    min-height: 300px;
+    max-height: 300px;
+}
+
+#columnChart {
+    width: 50%;
+    height: 100%;
+}
+
+#pieChart {
+    width: 50%;
+    height: 100%;
+}
+
+#barChart {
+    min-height: 300px;
+    max-height: 300px;
+}
+
+#myPivotChartGrid {
+    height: 25%;
+}
+
+
+/* styles.css */
+[data-testid="stPopoverContent"] {
+    width: 500px !important;  /* Set fixed width for the popover */
+    max-width: 500px !important;  /* Prevent popover from expanding */
+    padding: 15px; /* Optional: Add padding for better layout */
+    border: 1px solid #ddd; /* Optional: Add a border */
+    border-radius: 5px; /* Optional: Add rounded corners */
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1); /* Optional: Add a shadow */
+}
+
+.stMultiSelect [data-baseweb=select] span{
+            max-width: 250px;
+            font-size: 0.6rem;}
+.stMultiSelect [data-baseweb=select] span{
+    max-width: 500px;
+}
+    /* Container styling */
+    .card-container {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 20px;
+        padding: 20px;
+        background-color: #f4f6f8; /* Light background for contrast */
+    }
+
+    /* Card styling */
+    .card {
+        background-color: #ffffff;
+        border-radius: 12px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        width: 100%;
+	
+        max-width: 380px; /* Ensures cards don't get too wide */
+        padding: 20px;
+        transition: transform 0.2s, box-shadow 0.2s;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Header styling based on risk level */
+    .low-risk {
+        background-color: #e6f4ea;
+        border-left: 6px solid #28a745;
+        padding: 10px;
+        border-radius: 6px 0 0 6px;
+    }
+    /* Header styling based on risk level */
+    .no-risk {
+        background-color: #5b94a9;
+        border-left: 6px solid #5b54fb;
+        padding: 10px;
+        border-radius: 6px 0 0 6px;
+    }
+
+    .medium-risk {
+        background-color: #fff4e5;
+        border-left: 6px solid #ffc107;
+        padding: 10px;
+        border-radius: 6px 0 0 6px;
+    }
+
+    .high-risk {
+        background-color: #fdecea;
+        border-left: 6px solid #dc3545;
+        padding: 10px;
+        border-radius: 6px 0 0 6px;
+    }
+
+    /* Header text */
+    .header {
+        font-size: 1.2em;
+        font-weight: 600;
+        color: #333333;
+    }
+
+    /* Meta text */
+    .meta {
+        font-size: 0.9em;
+        color: #777777;
+    }
+
+    /* KPI metrics */
+    .kpi {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 15px;
+    }
+
+    .kpi .metric {
+        text-align: center;
+    }
+
+    .kpi .metric .number {
+        font-size: 1.4em;
+        font-weight: 700;
+        color: #333333;
+    }
+
+    .kpi .metric .label {
+        font-size: 0.8em;
+        color: #777777;
+    }
+
+    /* Button styling */
+    .full-width-button > button {
+        width: 100%;
+        padding: 10px 0;
+        background-color: #007bff;
+        color: #ffffff;
+        border: none;
+        border-radius: 6px;
+        font-size: 1em;
+        cursor: pointer;
+        transition: background-color 0.2s;
+    }
+
+    .full-width-button > button:hover {
+        background-color: #0056b3;
+
+    }
+
+
+.column {
+    float: left;
+    width: 33.33%;
+  }
+  
+  /* Clear floats after the columns */
+  .row:after {
+    content: "";
+    display: table;
+    clear: both;
+  }
+
+
+  .kpi.number {
+    font-size: 2rem;
+    text-align: center;
+    color: rgb(90, 90, 90);
+ }
+
+ .kpi.text{
+    font-size: 1rem;
+    text-align: center;
+    color: rgb(90, 90, 90);
+    padding-top: 10px;
+ }
+
+ .tablebackground{
+    background-color: #BAD2DE !important;
+  }
+
+
+ .viewbackground{
+  background-color: #CBE2DA !important;
+}
+  
+
+.mvbackground{
+  background-color: #E5F0EC !important;
+}
+
+
+  .smallheader{
+      font-size: small !important;
+  }
+
+  #my-container {
+    height: 100vh;
+    width: 100%;
+  }
+
+
+
+
+/* Import Open Sans font from Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans&display=swap');
+
+/* Apply the font to the body */
+body {
+    font-family: 'Open Sans', sans-serif;
+    background-color: #ffffff;
+    color: #333333;
+}
+
+/* Header Styling */
+header {
+    background-color: #005B82; /* Wolters Kluwer blue */
+    color: #ffffff;
+    padding: 20px;
+    text-align: center;
+}
+
+/* Headings */
+h1, h2, h3, h4, h5, h6 {
+    color: #005B82;
+    font-weight: 600;
+}
+
+/* Paragraphs */
+p {
+    font-size: 16px;
+    line-height: 1.6;
+}
+
+/* Links */
+a {
+    color: #007FA3;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+/* Buttons */
+button, .st-button button {
+    background-color: #007FA3;
+    color: #ffffff;
+    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+/* Button styling */
+.full-width-button > button {
+    width: 100%;
+    padding: 10px 0;
+    background-color: #007bff;
+    color: black; /* Установить черный цвет текста */
+    border: none;
+    border-radius: 6px;
+    font-size: 1em;
+    cursor: pointer;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.full-width-button > button:hover {
+    background-color: #f0f0f0;  /* Изменить фон при наведении на светло-серый */
+    color: black;             /* Оставить черный цвет текста при наведении */
+}
+
+button:hover, .st-button button:hover {
+    background-color: #005B82;
+    color: white !important;
+    border: none;
+
+
+	
+}
+.stButton > button:disabled, .st-button > button:disabled, button:disabled {
+    background-color: #cccccc !important; /* Светло-серый фон для отключённых кнопок */
+    color: #666666 !important;            /* Темно-серый цвет текста для отключённых кнопок */
+    cursor: not-allowed !important;       /* Изменить курсор на "запрещено" */
+    opacity: 0.6 !important;              /* Уменьшить непрозрачность для визуальной индикации */
+}
+
+/* Inputs */
+input[type="text"], input[type="email"], textarea, .st-text-input input {
+    border: 1px solid #CCCCCC;
+    padding: 10px;
+    width: 100%;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+/* Navigation Bar */
+.navbar {
+    background-color: #F8F8F8;
+    overflow: hidden;
+    border-bottom: 1px solid #E7E7E7;
+}
+
+.navbar a {
+    float: left;
+    display: block;
+    color: #007FA3;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+}
+
+.navbar a:hover {
+    background-color: #E7E7E7;
+    color: #005B82;
+}
+
+/* Footer */
+footer {
+    background-color: #333333;
+    color: #ffffff;
+    padding: 20px;
+    text-align: center;
+}
+
+/* Cards */
+.card {
+    background-color: #ffffff;
+    border: 1px solid #E0E0E0;
+    padding: 20px;
+    margin: 20px 0;
+     height: 170px;
+    border-radius: 4px;
+}
+
+/* Sidebar */
+.stSidebar {
+    background-color: #F8F8F8;
+}
+
+.stSidebar .stButton button {
+    width: 100%;
+}
+
+/* Tables */
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th, td {
+    border: 1px solid #E0E0E0;
+    padding: 8px;
+    text-align: left;
+}
+
+th {
+    background-color: #F1F1F1;
+}
+
+/* Responsive Layout */
+@media screen and (max-width: 768px) {
+    .navbar a {
+        float: none;
+        width: 100%;
+    }
+}
+
+#logo {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    width: 200px; /* Adjust as needed */
+}
+
+/* Spinner Styles */
+    .spinner-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(255, 255, 255, 0.8);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000; /* Ensure it's on top */
+      display: none; /* Hidden by default */
+    }
+
+    .spinner {
+      border: 8px solid #f3f3f3; /* Light grey */
+      border-top: 8px solid #3498db; /* Blue */
+      border-radius: 50%;
+      width: 60px;
+      height: 60px;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+
