@@ -273,7 +273,7 @@ button, .st-button button {
     width: 100%;
     padding: 10px 0;
     background-color: #007bff;
-    color: black; /* Установить черный цвет текста */
+    color: black; /* РЈСЃС‚Р°РЅРѕРІРёС‚СЊ С‡РµСЂРЅС‹Р№ С†РІРµС‚ С‚РµРєСЃС‚Р° */
     border: none;
     border-radius: 6px;
     font-size: 1em;
@@ -282,8 +282,8 @@ button, .st-button button {
 }
 
 .full-width-button > button:hover {
-    background-color: #f0f0f0;  /* Изменить фон при наведении на светло-серый */
-    color: black;             /* Оставить черный цвет текста при наведении */
+    background-color: #f0f0f0;  /* РР·РјРµРЅРёС‚СЊ С„РѕРЅ РїСЂРё РЅР°РІРµРґРµРЅРёРё РЅР° СЃРІРµС‚Р»Рѕ-СЃРµСЂС‹Р№ */
+    color: black;             /* РћСЃС‚Р°РІРёС‚СЊ С‡РµСЂРЅС‹Р№ С†РІРµС‚ С‚РµРєСЃС‚Р° РїСЂРё РЅР°РІРµРґРµРЅРёРё */
 }
 
 button:hover, .st-button button:hover {
@@ -295,10 +295,10 @@ button:hover, .st-button button:hover {
 	
 }
 .stButton > button:disabled, .st-button > button:disabled, button:disabled {
-    background-color: #cccccc !important; /* Светло-серый фон для отключённых кнопок */
-    color: #666666 !important;            /* Темно-серый цвет текста для отключённых кнопок */
-    cursor: not-allowed !important;       /* Изменить курсор на "запрещено" */
-    opacity: 0.6 !important;              /* Уменьшить непрозрачность для визуальной индикации */
+    background-color: #cccccc !important; /* РЎРІРµС‚Р»Рѕ-СЃРµСЂС‹Р№ С„РѕРЅ РґР»СЏ РѕС‚РєР»СЋС‡С‘РЅРЅС‹С… РєРЅРѕРїРѕРє */
+    color: #666666 !important;            /* РўРµРјРЅРѕ-СЃРµСЂС‹Р№ С†РІРµС‚ С‚РµРєСЃС‚Р° РґР»СЏ РѕС‚РєР»СЋС‡С‘РЅРЅС‹С… РєРЅРѕРїРѕРє */
+    cursor: not-allowed !important;       /* РР·РјРµРЅРёС‚СЊ РєСѓСЂСЃРѕСЂ РЅР° "Р·Р°РїСЂРµС‰РµРЅРѕ" */
+    opacity: 0.6 !important;              /* РЈРјРµРЅСЊС€РёС‚СЊ РЅРµРїСЂРѕР·СЂР°С‡РЅРѕСЃС‚СЊ РґР»СЏ РІРёР·СѓР°Р»СЊРЅРѕР№ РёРЅРґРёРєР°С†РёРё */
 }
 
 /* Inputs */
