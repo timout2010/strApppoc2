@@ -1,4 +1,5 @@
-﻿import pickle
+#//POC2//POC2//POC2//POC2//POC2//POC2//POC2//POC2//POC2//POC2//POC2//POC2//POC2//POC2//POC2//POC2//POC2//POC2//POC2//POC2//POC2//POC2//POC2//POC2//POC2//POC2//POC2//POC2//POC2//POC2//POC2//POC2//POC2//POC2//POC2//POC2//POC2//POC2//POC2//POC2//POC2//POC2//POC2//POC2//POC2//POC2
+import pickle
 import math
 import locale
 from collections import namedtuple
@@ -29,9 +30,9 @@ from PIL import Image
 from io import BytesIO
 import ast
 # Configuration№
-FUNCTION_BASE_URL = "http://localhost:7190/api" # e.g., https://<function-app>.azurewebsites.net/api/
-version="2.01a"
-#FUNCTION_BASE_URL = "https://glauditazurefuntion.azurewebsites.net/api" # e.g., https://<function-app>.azurewebsites.net/api/
+#FUNCTION_BASE_URL = "http://localhost:7190/api" # e.g., https://<function-app>.azurewebsites.net/api/
+version="2.2a"
+FUNCTION_BASE_URL = "https://glauditpoc2azurefunction.azurewebsites.net/api"
 
 GENERATE_SAS_TOKEN_ENDPOINT = f"{FUNCTION_BASE_URL}/GenerateSASToken"
 START_ORCHESTRATOR_ENDPOINT = f"{FUNCTION_BASE_URL}/start-orchestrator"
@@ -39,6 +40,7 @@ EXTRACT_COLUMNS_ENDPOINT = f"{FUNCTION_BASE_URL}/start-column-extraction"  # New
 CHECK_JOB_STATUS_ENDPOINT = f"{FUNCTION_BASE_URL}/check-job-status"
 GETCHART_ENDPOINT = f"{FUNCTION_BASE_URL}/getchart"
 RUNNOTEBOOK_ENDPOINT = f"{FUNCTION_BASE_URL}/RunDatabricksNotebook"
+GETRESULT_ENDPOINT = f"{FUNCTION_BASE_URL}/GetResult"
 API_URL_DATA = f"{FUNCTION_BASE_URL}/GetPaginatedData"
 API_URL_DOWNLOAD = f"{FUNCTION_BASE_URL}/DownloadTableCsv"
 storage_connection_string="DefaultEndpointsProtocol=https;AccountName=zuscutaargpletoaudi9020;AccountKey=i2Fs+bpmHyCWzk/lwpkclGW6gWaGQumksWbQgjDmverFwG+O/lmz1aTTvHxawzyT+rRDfxw3DKQ9+ASt8RFXow==;EndpointSuffix=core.windows.net"
@@ -87,6 +89,30 @@ class Task:
 
 #FUNCTION_KEY = os.getenv("FUNCTION_KEY")  # If using function keys for authentication
 FUNCTION_KEY=""
+
+data = [
+    {
+        "firmId": 1,
+        "customer_name": "John & Associates",
+        "engagements": [
+            {"engagementId": 1, "engagement_name": "Financial Audit 2024"},
+            {"engagementId": 2, "engagement_name": "Tax Consulting 2024"}
+        ]
+    },
+    {
+        "firmId": 2,
+        "customer_name": "Global Audit Co",
+        
+        
+        "engagements": [
+            {"engagementId": 3, "engagement_name": "Internal Controls Review"},
+            {"engagementId": 4, "engagement_name": "Test Audit - 2024"}
+        ]
+    }
+]
+
+
+
 test_data = {
         "UnusualTest": {
             "status": "Not started",
@@ -180,7 +206,7 @@ test_data = {
     }
 
 @st.cache_data(ttl=6900)
-def fetch_data(tablename,page, page_size,filter):
+def fetch_data(tablename,page, page_size,filter,engagementId):
     params = {
         'page': page,
         'pageSize': page_size,
@@ -258,6 +284,21 @@ def run_notebook(input_data):
         st.error(f"Failed to start orchestration: {response.text}")
         st.stop()
 
+def get_result(input_data):
+    headers = {"Content-Type": "application/json"}
+    # if FUNCTION_KEY:
+    #     headers["x-functions-key"] = FUNCTION_KEY
+    
+    #print(input_data)
+    
+    response = requests.post(GETRESULT_ENDPOINT, headers=headers, data=json.dumps(input_data))
+    print("run_notebook"+ str(response) )
+    if response.status_code == 200:
+        return response.json()
+    else:
+        st.error(f"Failed to start orchestration: {response.text}")
+        st.stop()
+
 def local_css(file_name):
     with open(file_name) as f:
         st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
@@ -278,6 +319,7 @@ def check_job_status(instance_id,typeid):
 def update_tests(test_dest, status):
     print("UODATE TESTS!!!!")
     for test_name, test_info in status.items():
+        print(test_name)
         if test_name in test_dest:
             for key, value in test_info.items():
                 # Update only if the value is not None or different from the existing status
@@ -286,15 +328,18 @@ def update_tests(test_dest, status):
     return test_dest
 
 #@st.cache_data
-def extract_columns( file_name,file_nameCA):
+def extract_columns( file_name,file_nameCA,firmId,engagementId):
     # Prepare input data for column extraction
     input_data = {
         
         
         "FileName": file_name,
         "FileNameCA":file_nameCA,
+        "firmId":  str(firmId),
+        "engagementId":  str(engagementId),
         #"DatabricksJobId": 447087718645534 #old
-        "DatabricksJobId": 775618648147406
+        #"DatabricksJobId": 775618648147406
+        "DatabricksJobId":1108437370948679
     }
 
     headers = {"Content-Type": "application/json"}
@@ -456,20 +501,23 @@ def display_tableTests():
             st.text(locale.currency(test["sumAmount"], grouping=True))
     
 
-def poll_for_columns(test_data, polling_interval=4, max_attempts=1120):
+def poll_for_columns(test_data, firmId,engagementId,polling_interval=4, max_attempts=1120):
     columns = []
-    # print("start 1")
+    print("start poll_for_columns poll_for_columns")
     
     input_data = {
             
                     "ContainerName": "uploads",
                     "FileName": test_data['unique_file_name'],
                     "FileNameCA":  test_data.get('unique_file_nameCA', ""),
+                    "firmId":  str(firmId),
+                    "engagementId":  str(engagementId),
                     "SelectedColumns": "",  
                      #"DatabricksJobId": 447087718645534  #old
-                    "DatabricksJobId": 447087718645534
+                    #"DatabricksJobId": 447087718645534 #poc1
+                    "DatabricksJobId":1108437370948679
                 }
-    instance_id= extract_columns(test_data['unique_file_name'],test_data.get('unique_file_nameCA', ""))
+    instance_id= extract_columns(test_data['unique_file_name'],test_data.get('unique_file_nameCA', ""), str(firmId),str(engagementId))
     print("poll for coll"+instance_id)
     for _ in range(max_attempts):
         time.sleep(polling_interval)
@@ -538,14 +586,18 @@ def poll_for_chart(test_data,out_data, polling_interval=4, max_attempts=1120):
         else:
             test_data["status"]="in_progress"
 
-def poll_for_task(test_data,out_data, polling_interval=10, max_attempts=1120):
+def poll_for_task(test_data,out_data,firmId,engagementId, polling_interval=10, max_attempts=1120):
     summary= []
     input_data={}
     #input_data['DatabricksJobId']=861358873659712 #old
-    input_data['DatabricksJobId']=58242941415312 #
+    #input_data['DatabricksJobId']=58242941415312 # poc1
+    input_data['DatabricksJobId']=192398946403965 #
+    
     
     input_data['FileName']=test_data['unique_file_name']
     input_data['Params']= json.dumps(test_data)
+    input_data["firmId"]=  firmId
+    input_data["engagementId"]=  engagementId
     
     instance_id = start_orchestration( input_data)
     print("Start poll_for_task"+instance_id +str(input_data['FileName']))        
@@ -594,6 +646,7 @@ def init():
         
     if  'IsLoadedChart' not in st.session_state:
         st.session_state['IsLoadedChart']=True
+        st.session_state["prev_selected_engagements"]=""
     if  'test_dataChart' not in st.session_state:
         st.session_state['test_dataChart']={}
     if 'filtered_df' not in st.session_state:
@@ -614,6 +667,7 @@ def init():
             st.session_state["columns"]=2
             st.session_state['runbutton_enabled'] = True
             st.session_state['col_status']="Completed"
+            
     if  st.session_state['test_data']["status_column"]== "failed":
             st.error("Failed to extract columns.")
     if st.session_state['test_data']["status_column"]== "in_progress":
@@ -629,10 +683,11 @@ def load_data_from_blob(sas_url):
     #return pd.read_csv(sas_url)
 
 @st.cache_data 
-def load_data_from_URL(chart,filter,filtered_df,tablaname):
+def load_data_from_URL(chart,filter,filtered_df,tablanamem,engagementId):
     
     
-    return pd.read_json(GETCHART_ENDPOINT+"?chart="+chart )
+    #return pd.read_json(GETCHART_ENDPOINT+"?chart="+chart"" );
+    return pd.read_json(f"{GETCHART_ENDPOINT}?chart={chart}&firmId={st.session_state["firmId"] }&engagementId={st.session_state["engagementId"] } ")
     #return pd.read_csv(sas_url)
 
 @st.cache_data
@@ -728,7 +783,7 @@ def DisplayChart():
     with left_col:
         with st.expander("Filters", expanded=True):
             
-            account_df= fetch_data("accounts_type",1, 1,"")
+            account_df= fetch_data("accounts_type",1, 1,"",st.session_state["engagementId"])
             
             account_type = st.multiselect("Filter by Account Type", options=account_df["accountType"].unique(), default=None)
             subtype = st.multiselect("Filter by Subtype", options=account_df["accountSubType"].unique(), default=None)
@@ -774,7 +829,7 @@ def createChart1(filter,filtered_df):
     #data = load_data_from_blob(chart1url)
     print("Chart1"+str(st.session_state.get("filter","none"))+"!!!"+str(st.session_state["filtered_df"]))
     
-    data = load_data_from_URL("chart1",st.session_state.get("filter","none"),st.session_state["filtered_df"],st.session_state['test_data']['unique_file_name'] )
+    data = load_data_from_URL("chart1",st.session_state.get("filter","none"),st.session_state["filtered_df"],st.session_state['test_data']['unique_file_name'],st.session_state["engagementId"] )
     df = pd.DataFrame(data)
 
 
@@ -830,7 +885,7 @@ def createChart2(filter,filtered_df):
         #chart2url = out_data['summary']['chart2url']
         #st.write(f"Data source URL: {chart2url}")  # Display the URL for debugging
         #//data = load_data_from_blob(chart2url)  # Ensure this function works correctly
-        data = load_data_from_URL("chart2",st.session_state.get("filter","none"),st.session_state["filtered_df"],st.session_state['test_data']['unique_file_name'] )
+        data = load_data_from_URL("chart2",st.session_state.get("filter","none"),st.session_state["filtered_df"],st.session_state['test_data']['unique_file_name'],st.session_state["engagementId"] )
         risk_per_account_df = pd.DataFrame(data)
 
         # Validate the DataFrame
@@ -910,7 +965,7 @@ def createChart3(filter,filtered_df):
         #chart3url = out_data['summary']['chart3url']
         #st.write(f"Data source URL: {chart3url}")  # Display the URL for debugging
         #//data = load_data_from_blob(chart3url)  # Ensure this function works correctly
-        data = load_data_from_URL("chart3",st.session_state.get("filter","none"),st.session_state["filtered_df"],st.session_state['test_data']['unique_file_name'] )
+        data = load_data_from_URL("chart3",st.session_state.get("filter","none"),st.session_state["filtered_df"],st.session_state['test_data']['unique_file_name'] ,st.session_state["engagementId"])
         df = pd.DataFrame(data)
 
         # Validate the DataFrame
@@ -964,7 +1019,7 @@ def createChart4(filter,filtered_df):
     # print(chart1url)
     ##data = load_data_from_blob(chart4url)
     
-    data = load_data_from_URL("chart4",st.session_state.get("filter","none"),st.session_state["filtered_df"],st.session_state['test_data']['unique_file_name'] )
+    data = load_data_from_URL("chart4",st.session_state.get("filter","none"),st.session_state["filtered_df"],st.session_state['test_data']['unique_file_name'],st.session_state["engagementId"] )
     df = pd.DataFrame(data)
     #data = build_hierarchy(df)
 
@@ -1141,7 +1196,7 @@ def DisplayCard(test_data):
     #chart3url= out_data['summary']['chart3url']
     
     if  "cards_data" not in st.session_state:
-        st.session_state["cards_data"]= load_data_from_URL("chart3","",st.session_state['filtered_df'],st.session_state['test_data']['unique_file_name'] )
+        st.session_state["cards_data"]= load_data_from_URL("chart3","",st.session_state['filtered_df'],st.session_state['test_data']['unique_file_name'],st.session_state["engagementId"] )
         #st.session_state["cards_data"]= load_data_from_blob(chart3url)
         
     data =st.session_state["cards_data"]
@@ -1269,8 +1324,81 @@ def download_data(tablename,filter):
     else:
         st.error("Error download data")
         return pd.DataFrame()
+import copy
+def update_test_data(test_data, json_obj):
+    
+    try:
+        # Parse the JSON string from 'result'
+        result_data = json.loads(json_obj.get('result', '{}'))
+    except json.JSONDecodeError as e:
+        st.error(f"Error decoding JSON: {e}")
+        return test_data
 
+        # Define the fields to update
+    fields_to_update = ['status', 'start_time', 'end_time', 'error', 'count', 'sumAmount']
+    test_data1=copy.copy(test_data)
+    for test_key, test_value in result_data.items():
+            if test_key in test_data:
+                for field in fields_to_update:
+                    if field in test_value:
+                        test_data1[test_key][field] = test_value[field]
+            else:
+                st.warning(f"Test key '{test_key}' not found in test_data.")
+
+            return test_data1
+
+   
+    
+
+def on_engagement_change():
+    selected = st.session_state.selected_engagement_name
+    selected_engagement_details = next(
+        eng for eng in st.session_state["selected_engagements"] if eng["engagement_name"] == selected 
+    )
+    st.session_state["engagementId"] = selected_engagement_details["engagementId"]
+    input_data = {
         
+        
+        "firmId":  str(st.session_state["firmId"]),
+        "engagementId":  str(st.session_state["engagementId"]),
+        
+    }
+    print("ENG change"+str(input_data))
+    
+    res=get_result(input_data)
+    
+    if 'data_array' in res['output']:
+        res_test=res['output']['data_array'][0][0]
+        json_obj = json.loads(res_test)["result"]
+        #data=update_test_data(test_data,json_obj)
+        #st.session_state['test_data']=data
+        #result = res["result"]
+        
+        #display_tableTests()
+        st.session_state['out_data']['summary']="emg"
+        
+        update_tests(test_data,json.loads(json_obj))
+        st.session_state['test_data']=test_data
+        st.session_state['test_data']['status_column']="Completed"
+        st.session_state['test_data']['status']="Completed"
+        st.session_state['test_data']['unique_file_name']="None"
+    else:
+        print("")
+        if 'summary' in st.session_state['out_data']:
+            del st.session_state['out_data']['summary']
+        if 'unique_file_name' in st.session_state['test_data']:
+            del st.session_state['test_data']['unique_file_name']
+        for test_key, test_info in test_data.items():
+            test_info['status'] = "Not started"      # Update status to "Nine"
+            test_info['count'] = 0            # Reset count to 0
+            test_info['sumAmount'] = 0 
+            
+        st.session_state['test_data']=test_data
+        st.session_state['test_data']['status_column']="Not started"
+        st.session_state['test_data']['status']="Not started"
+        print(test_data)
+
+
 def main():
 
     # Page Configuration
@@ -1287,6 +1415,51 @@ def main():
     st.markdown("<img src='https://cdn.wolterskluwer.io/wk/fundamentals/1.15.2/logo/assets/medium.svg' alt='Wolters Kluwer Logo' width='190px' height='31px'>", unsafe_allow_html=True)
     st.title("General Ledger testing v"+version)
     init()
+    
+
+    
+    df = pd.DataFrame(data)
+
+
+    col1, col2,col3 = st.columns([1, 1, 1])
+    with col1:
+        # 1) Create a selectbox to choose the customer by customer_name
+        customers = df["customer_name"].tolist()
+        selected_customer_name = st.selectbox("Select a Customer", customers)
+
+        # 2) Find the selected customer's row in the DataFrame
+        selected_customer = df[df["customer_name"] == selected_customer_name].iloc[0]
+
+        # Extract details of the selected customer
+        st.session_state["firmId"] = selected_customer["firmId"]
+        st.session_state["selected_engagements"] = selected_customer["engagements"]
+    
+    with col2:
+
+        engagement_names = [eng["engagement_name"] for eng in st.session_state["selected_engagements"]]
+        selected_engagement_name = st.selectbox(
+            "Select an Engagement",
+            engagement_names,
+            key='selected_engagement_name',
+        
+        )
+        #st.session_state["selected_engagements"]=selected_engagement_name
+    with col3:
+         st.markdown("<br>", unsafe_allow_html=True) 
+         load_clicked = st.button('Load '+selected_engagement_name, use_container_width=True)
+         if load_clicked:
+
+                on_engagement_change()
+                
+    
+    st.write(selected_engagement_name ) 
+    
+    
+
+   
+    
+    
+    #selected_engagements = selected_customer["engagements"]
     col1, col2 = st.columns([1, 1])
     with col1:
         uploaded_file = st.file_uploader(f"#STEP2: Choose General Ledger file", type=['zip', 'csv'] ,key="x2" )
@@ -1305,7 +1478,7 @@ def main():
         
         thread = threading.Thread(
                 target=poll_for_task,
-                args=(st.session_state['test_data'],st.session_state['out_data'])                )
+                args=(st.session_state['test_data'],st.session_state['out_data'], st.session_state["firmId"] ,st.session_state["engagementId"])                )
         thread.start()
         with st.spinner("Waiting for task to complete..."):
             while thread.is_alive():  
@@ -1347,7 +1520,7 @@ def main():
             
             st.session_state['col_status']="in progress"
             st.session_state['test_data']['status_column']="in progess"
-            st.session_state['threadUpload']= threading.Thread(target=poll_for_columns,args=(st.session_state['test_data'],)                )       
+            st.session_state['threadUpload']= threading.Thread(target=poll_for_columns,args=(st.session_state['test_data'],st.session_state["firmId"] ,st.session_state["engagementId"])                )       
             st.session_state['threadUpload'].start()
             
             
