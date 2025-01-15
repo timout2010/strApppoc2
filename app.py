@@ -596,8 +596,8 @@ def poll_for_task(test_data,out_data,firmId,engagementId, polling_interval=10, m
     
     input_data['FileName']=test_data['unique_file_name']
     input_data['Params']= json.dumps(test_data)
-    input_data["firmId"]=  firmId
-    input_data["engagementId"]=  engagementId
+    input_data["firmId"]=  str(firmId)
+    input_data["engagementId"]=  str(engagementId)
     
     instance_id = start_orchestration( input_data)
     print("Start poll_for_task"+instance_id +str(input_data['FileName']))        
