@@ -1351,11 +1351,6 @@ def update_test_data(test_data, json_obj):
     
 
 def on_engagement_change():
-    selected = st.session_state.selected_engagement_name
-    selected_engagement_details = next(
-        eng for eng in st.session_state["selected_engagements"] if eng["engagement_name"] == selected 
-    )
-    st.session_state["engagementId"] = selected_engagement_details["engagementId"]
     input_data = {
         
         
@@ -1443,6 +1438,12 @@ def main():
             key='selected_engagement_name',
         
         )
+        
+        selected = st.session_state.selected_engagement_name
+        selected_engagement_details = next(
+            eng for eng in st.session_state["selected_engagements"] if eng["engagement_name"] == selected 
+        )
+        st.session_state["engagementId"] = selected_engagement_details["engagementId"]
         #st.session_state["selected_engagements"]=selected_engagement_name
     with col3:
          st.markdown("<br>", unsafe_allow_html=True) 
