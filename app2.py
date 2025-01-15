@@ -1,6 +1,6 @@
     # Azure Function endpoints
-FUNCTION_BASE_URL = "http://localhost:7190/api" # e.g., https://<function-app>.azurewebsites.net/api/
-#FUNCTION_BASE_URL = "https://glauditazurefuntion.azurewebsites.net/api" # e.g., https://<function-app>.azurewebsites.net/api/
+#FUNCTION_BASE_URL = "http://localhost:7190/api" # e.g., https://<function-app>.azurewebsites.net/api/
+FUNCTION_BASE_URL = "https://glauditpoc2azurefunction.azurewebsites.net/api" # e.g., https://<function-app>.azurewebsites.net/api/
 
 API_URL_DATA = f"{FUNCTION_BASE_URL}/GetPaginatedData"
 API_URL_TOTAL_RECORDS = f"{FUNCTION_BASE_URL}/GetTotalRecords"
@@ -210,7 +210,7 @@ def generate_PowerBI_html(tablenname,filter ):
         <!-- AG Grid Styles -->
 
 <div>
-<iframe title="PowerBIPoc" width="1900" height="950.25" src="https://app.powerbi.com/reportEmbed?reportId=861832a8-e09f-4e27-a693-f014d5701b74&autoAuth=true&ctid=8ac76c91-e7f1-41ff-a89c-3553b2da2c17" frameborder="0" allowFullScreen="true"></iframe>
+<iframe title="PowerBIPoc2" width="1140" height="541.25" src="https://app.powerbi.com/reportEmbed?reportId=d1fe4cb2-282b-4050-a35e-b4132e01cb11&autoAuth=true&ctid=8ac76c91-e7f1-41ff-a89c-3553b2da2c17" frameborder="0" allowFullScreen="true"></iframe>
      </div>
     """
 
