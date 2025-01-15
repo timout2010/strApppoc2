@@ -31,7 +31,7 @@ from io import BytesIO
 import ast
 # Configuration№
 #FUNCTION_BASE_URL = "http://localhost:7190/api" # e.g., https://<function-app>.azurewebsites.net/api/
-version="2.2a"
+version="2.3a"
 FUNCTION_BASE_URL = "https://glauditpoc2azurefunction.azurewebsites.net/api"
 
 GENERATE_SAS_TOKEN_ENDPOINT = f"{FUNCTION_BASE_URL}/GenerateSASToken"
@@ -705,6 +705,25 @@ def applyfilter( filter, filtered_df):
     print(input_data)
     instance_id = run_notebook( input_data)
     print("applyflter"+str(instance_id) )
+
+
+def applyGlobalfilter( firmId,engagementId):
+    print("applyfilter")
+    input_data={}
+    input_data["firmId"]=str(firmId)
+    input_data["engagementId"]=str(engagementId)
+    parameters={}
+    #parameters["filter"]=filter
+    parameters['tablename']= st.session_state['test_data']['unique_file_name']
+    parameters["firmId"]=str(firmId)
+    parameters["engagementId"]=str(engagementId)
+    
+    
+    
+    input_data['parameters']= parameters
+    print(input_data)
+    instance_id = run_notebook( input_data)
+    print("applyGlobalflter"+str(instance_id) )
 
 
 @st.cache_data
@@ -1453,7 +1472,8 @@ def main():
          if load_clicked:
 
                 on_engagement_change()
-                st.session_state['out_data']['summary']=applyfilter(st.session_state.get("filter","none"),st.session_state["filtered_df"])
+                #st.session_state['out_data']['summary']=applyfilter(st.session_state.get("firmId","1"),st.session_state["engagementId"])
+                st.session_state['out_data']['summary']=applyGlobalfilter(st.session_state["firmId"] ,st.session_state["engagementId"])
                 
     
     
