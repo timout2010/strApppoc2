@@ -1617,7 +1617,7 @@ def main():
        # st.session_state['test_data']['unique_file_name']="pocglcsv"
        # mainPowerBI(st.session_state['test_data'],"")
         if 'summary' in st.session_state['out_data']:
-           new_page_url = "https://app.powerbi.com/reportEmbed?reportId=d1fe4cb2-282b-4050-a35e-b4132e01cb11&autoAuth=true&ctid=8ac76c91-e7f1-41ff-a89c-3553b2da2c17
+           new_page_url = "https://app.powerbi.com/reportEmbed?reportId=d1fe4cb2-282b-4050-a35e-b4132e01cb11&autoAuth=true&ctid=8ac76c91-e7f1-41ff-a89c-3553b2da2c17"
            st.markdown(f'<a href="{new_page_url}" target="_blank">Open Power BI</a>', unsafe_allow_html=True)
 
             #mainPowerBI(st.session_state['test_data'],st.session_state['out_data'])
