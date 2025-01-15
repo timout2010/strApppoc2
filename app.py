@@ -1362,13 +1362,15 @@ def on_engagement_change():
     
     res=get_result(input_data)
     
+    if  "cards_data" in st.session_state:
+        del st.session_state["cards_data"]
     if 'data_array' in res['output']:
         res_test=res['output']['data_array'][0][0]
         json_obj = json.loads(res_test)["result"]
         #data=update_test_data(test_data,json_obj)
         #st.session_state['test_data']=data
         #result = res["result"]
-        
+        print("result"+json_obj )
         #display_tableTests()
         st.session_state['out_data']['summary']="emg"
         
@@ -1451,9 +1453,9 @@ def main():
          if load_clicked:
 
                 on_engagement_change()
+                st.session_state['out_data']['summary']=applyfilter(st.session_state.get("filter","none"),st.session_state["filtered_df"])
                 
     
-    st.write(selected_engagement_name ) 
     
     
 
