@@ -31,7 +31,7 @@ from io import BytesIO
 import ast
 # Configuration№
 #FUNCTION_BASE_URL = "http://localhost:7190/api" # e.g., https://<function-app>.azurewebsites.net/api/
-version="2.3a"
+version="2.2a"
 FUNCTION_BASE_URL = "https://glauditpoc2azurefunction.azurewebsites.net/api"
 
 GENERATE_SAS_TOKEN_ENDPOINT = f"{FUNCTION_BASE_URL}/GenerateSASToken"
@@ -43,6 +43,7 @@ RUNNOTEBOOK_ENDPOINT = f"{FUNCTION_BASE_URL}/RunDatabricksNotebook"
 GETRESULT_ENDPOINT = f"{FUNCTION_BASE_URL}/GetResult"
 API_URL_DATA = f"{FUNCTION_BASE_URL}/GetPaginatedData"
 API_URL_DOWNLOAD = f"{FUNCTION_BASE_URL}/DownloadTableCsv"
+API_URL_DOWNLOADEXCEL = f"https://glaudit.eastus.cloudapp.azure.com/api/Excel/download"
 storage_connection_string="DefaultEndpointsProtocol=https;AccountName=zuscutaargpletoaudi9020;AccountKey=i2Fs+bpmHyCWzk/lwpkclGW6gWaGQumksWbQgjDmverFwG+O/lmz1aTTvHxawzyT+rRDfxw3DKQ9+ASt8RFXow==;EndpointSuffix=core.windows.net"
 storage_account = "zuscutaargpletoaudi9020"
 container = "testcontainer"
@@ -88,7 +89,7 @@ class Task:
             self.weight= name
 
 #FUNCTION_KEY = os.getenv("FUNCTION_KEY")  # If using function keys for authentication
-FUNCTION_KEY=""
+FUNCTION_KEY="" 
 
 data = [
     {
@@ -1324,6 +1325,61 @@ def DisplayCard(test_data):
                     st.session_state.IsLoadedChart=False
                     st.session_state['out_data']['summary']=applyfilter(st.session_state.get("filter","none"),st.session_state["filtered_df"])
                     
+def download_dataExcel(tablename,filter):
+    data = load_data_from_URL("chart4",st.session_state.get("filter","none"),st.session_state["filtered_df"],st.session_state['test_data']['unique_file_name'],st.session_state["engagementId"] )
+    df = pd.DataFrame(data)
+    #data = build_hierarchy(df)
+
+# Highcharts configuration
+    chart_title    ="xx"
+# Highcharts configuration
+    data = build_hierarchy(df)
+    #st.title("General Ledger Account Hierarchy")
+    sunburst_html = generate_sunburst_html(data )
+    test_data= st.session_state['test_data']
+    
+    test_list = []
+    for key, value in test_data.items():
+        print(key)
+        if type(value)!=str:
+           
+
+            test_item = {
+                "Name": value.get("name", ""),
+                "count": str(value.get("count", 0)),
+                "status": str(value.get("status", 0)),
+                "sumAmount": str(value.get("sumAmount", 0))
+            }
+            test_list.append(test_item)
+        
+	
+    params = {
+        
+        'chart4html':sunburst_html,
+        'TestList':test_list
+        
+    }
+    import warnings
+    from urllib3.exceptions import InsecureRequestWarning
+
+    with st.spinner("Preparing link for download"):
+        headers = {"Content-Type": "application/json"}
+        warnings.simplefilter('ignore', InsecureRequestWarning)
+        print(json.dumps(params))
+        response = requests.post(API_URL_DOWNLOADEXCEL, headers=headers, data=json.dumps(params), verify=False )
+        print(response)
+    if response.status_code == 200:
+             st.download_button(
+                            label=f"Download Audit Log",
+                            data=response.content,
+                            file_name=f"AuditLog.xlsx",
+                            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                        )
+    else:
+        st.error("Error download data")
+        return pd.DataFrame()
+
+
 def download_data(tablename,filter):
     params = {
         
@@ -1491,7 +1547,8 @@ def main():
     col1, col2,col3 = st.columns([1, 1,1])
     with col1:
         exccel_clicked = st.button('CSV file', disabled=not st.session_state['runbutton_enabled'],use_container_width=True)
-#    with col2:
+    with col2:
+	    excelChart_clicked = st.button('Audit log Excel', use_container_width=True)
         
     with col3:
         runbutton_clicked = st.button('Run tests', disabled=not st.session_state['runbutton_enabled'],use_container_width=True)
@@ -1560,6 +1617,9 @@ def main():
          tablename=st.session_state['test_data']['unique_file_name'] 
          download_data(tablename,st.session_state.get("filter","none"))   
 
+    if excelChart_clicked:
+         tablename=st.session_state['test_data']['unique_file_name'] 
+         download_dataExcel(tablename,st.session_state.get("filter","none"))   
     
         
     st.subheader("Select Tests to Run")
@@ -1617,7 +1677,7 @@ def main():
        # st.session_state['test_data']['unique_file_name']="pocglcsv"
        # mainPowerBI(st.session_state['test_data'],"")
         if 'summary' in st.session_state['out_data']:
-           new_page_url = "https://app.powerbi.com/reportEmbed?reportId=d1fe4cb2-282b-4050-a35e-b4132e01cb11&autoAuth=true&ctid=8ac76c91-e7f1-41ff-a89c-3553b2da2c17"
+           new_page_url = "https://app.powerbi.com/reportEmbed?reportId=861832a8-e09f-4e27-a693-f014d5701b74&autoAuth=true&ctid=8ac76c91-e7f1-41ff-a89c-3553b2da2c17"
            st.markdown(f'<a href="{new_page_url}" target="_blank">Open Power BI</a>', unsafe_allow_html=True)
 
             #mainPowerBI(st.session_state['test_data'],st.session_state['out_data'])
