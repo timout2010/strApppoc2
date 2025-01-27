@@ -1484,6 +1484,7 @@ def download_dataExcel(tablename,filter):
     data = build_hierarchy(df)
     #st.title("General Ledger Account Hierarchy")
     sunburst_html = generate_sunburst_html(data )
+    sunburstAg_html=generate_sunburst_html_ag_charts(data )
     test_data= st.session_state['test_data']
     
     test_list = []
@@ -1504,6 +1505,7 @@ def download_dataExcel(tablename,filter):
     params = {
         
         'chart4html':sunburst_html,
+        'chart4htmlAg':sunburstAg_html,
         'TestList':test_list
         
     }
