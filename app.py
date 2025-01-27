@@ -44,6 +44,7 @@ GETRESULT_ENDPOINT = f"{FUNCTION_BASE_URL}/GetResult"
 API_URL_DATA = f"{FUNCTION_BASE_URL}/GetPaginatedData"
 API_URL_DOWNLOAD = f"{FUNCTION_BASE_URL}/DownloadTableCsv"
 API_URL_DOWNLOADEXCEL = f"https://glaudit.eastus.cloudapp.azure.com/api/Excel/download"
+#API_URL_DOWNLOADEXCEL = f"https://localhost:7079/api/Excel/download"
 storage_connection_string="DefaultEndpointsProtocol=https;AccountName=zuscutaargpletoaudi9020;AccountKey=i2Fs+bpmHyCWzk/lwpkclGW6gWaGQumksWbQgjDmverFwG+O/lmz1aTTvHxawzyT+rRDfxw3DKQ9+ASt8RFXow==;EndpointSuffix=core.windows.net"
 storage_account = "zuscutaargpletoaudi9020"
 container = "testcontainer"
@@ -1137,7 +1138,7 @@ def generate_sunburst_html_ag_charts(nested_data):
     # but will provide a default color palette. If you need custom colors,
     # you can add a color key or advanced series config below.
     html= f"""
-    <div id="myChart" style="height:600px; width:100%;"></div>
+    <div id="container" style="height:600px; width:100%;"></div>
     <!-- AG Charts library -->
  
     <script src="https://cdn.jsdelivr.net/npm/ag-charts-enterprise@11.0.4/dist/umd/ag-charts-enterprise.js?t=1736932924792"></script>
@@ -1159,7 +1160,7 @@ def generate_sunburst_html_ag_charts(nested_data):
 	data=[{data_json}];
 
 const options = {{
-    container: document.getElementById("myChart"),
+    container: document.getElementById("container"),
     data: data,
     series: [
       {{
@@ -1484,7 +1485,7 @@ def download_dataExcel(tablename,filter):
     data = build_hierarchy(df)
     #st.title("General Ledger Account Hierarchy")
     sunburst_html = generate_sunburst_html(data )
-    sunburstAg_html=generate_sunburst_html_ag_charts(data )
+    sunburstAg_html=generate_sunburst_html_ag_charts(build_hierarchy_for_ag_charts(df) )
     test_data= st.session_state['test_data']
     
     test_list = []
