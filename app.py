@@ -31,7 +31,7 @@ from io import BytesIO
 import ast
 # Configuration№
 #FUNCTION_BASE_URL = "http://localhost:7190/api" # e.g., https://<function-app>.azurewebsites.net/api/
-version="2.2a"
+version="2.5a"
 FUNCTION_BASE_URL = "https://glauditpoc2azurefunction.azurewebsites.net/api"
 
 GENERATE_SAS_TOKEN_ENDPOINT = f"{FUNCTION_BASE_URL}/GenerateSASToken"
@@ -838,6 +838,7 @@ def DisplayChart():
                 createChart4(st.session_state.get("filter","none"),st.session_state["filtered_df"])
                 createChart1(st.session_state.get("filter","none"),st.session_state["filtered_df"])
             with col2:
+                createChart4_ag(st.session_state.get("filter","none"),st.session_state["filtered_df"])
                 createChart2(st.session_state.get("filter","none"),st.session_state["filtered_df"])
                 createChart3(st.session_state.get("filter","none"),st.session_state["filtered_df"])
             
@@ -1030,6 +1031,27 @@ def createChart3(filter,filtered_df):
 
     except Exception as e:
         st.error(f"An error occurred while creating the chart: {e}")
+
+def createChart4_ag(filter, filtered_df):
+    # 1) Load data from your source (same as before)
+    data = load_data_from_URL(
+        "chart4",
+        st.session_state.get("filter", "none"),
+        st.session_state["filtered_df"],
+        st.session_state["test_data"]["unique_file_name"],
+        st.session_state["engagementId"]
+    )
+    df = pd.DataFrame(data)
+    
+    # 2) Convert DataFrame to the nested structure AG Charts needs
+    nested_data = build_hierarchy_for_ag_charts(df)
+    print(nested_data )
+    # 3) Generate the HTML snippet that renders the AG Charts sunburst
+    sunburst_html = generate_sunburst_html_ag_charts(nested_data)
+    
+    # 4) Display in Streamlit
+    st.write("### General Ledger Account Hierarchy (AG Charts Sunburst)")
+    st.components.v1.html(sunburst_html, height=600)
 def createChart4(filter,filtered_df):
     
     #test_data=st.session_state['test_data']
@@ -1073,13 +1095,13 @@ def build_hierarchy(df):
         level2_name = str(row['accountSubType'])
         level3_name = str(row['fsCaption'])
         level4_name = str(row['glAccountName'])
-        value = row['total_amount']
+        value = float(row['total_amount'])
 
         # Level 1
         if level1_name not in level1_nodes:
             level1_id = f"L1_{level1_name}"
             level1_nodes[level1_name] = level1_id
-            data.append({'id': level1_id, 'name': level1_name, 'parent': 'root', 'value': None})
+            data.append({'id': level1_id, 'name': level1_name, 'parent': 'root'})
         else:
             level1_id = level1_nodes[level1_name]
 
@@ -1087,7 +1109,7 @@ def build_hierarchy(df):
         if level2_name not in level2_nodes:
             level2_id = f"L2_{level2_name}"
             level2_nodes[level2_name] = level2_id
-            data.append({'id': level2_id, 'name': level2_name, 'parent': level1_id, 'value': None})
+            data.append({'id': level2_id, 'name': level2_name, 'parent': level1_id})
         else:
             level2_id = level2_nodes[level2_name]
 
@@ -1095,7 +1117,7 @@ def build_hierarchy(df):
         if level3_name not in level3_nodes:
             level3_id = f"L3_{level3_name}"
             level3_nodes[level3_name] = level3_id
-            data.append({'id': level3_id, 'name': level3_name, 'parent': level2_id, 'value': None})
+            data.append({'id': level3_id, 'name': level3_name, 'parent': level2_id})
         else:
             level3_id = level3_nodes[level3_name]
 
@@ -1106,9 +1128,135 @@ def build_hierarchy(df):
 
     return data
 
+def generate_sunburst_html_ag_charts(nested_data):
+    data_json = json.dumps(nested_data)  # Convert to JSON string for JavaScript
+    #print(nested_data)
+    #data_json = nested_data  # Convert to JSON string for JavaScript
+    AgCharts="{ AgCharts }"
+    # Note that AG Charts does not automatically color each level 
+    # but will provide a default color palette. If you need custom colors,
+    # you can add a color key or advanced series config below.
+    html= f"""
+    <div id="myChart" style="height:600px; width:100%;"></div>
+    <!-- AG Charts library -->
+ 
+    <script src="https://cdn.jsdelivr.net/npm/ag-charts-enterprise@11.0.4/dist/umd/ag-charts-enterprise.js?t=1736932924792"></script>
 
+    <script>
+	const { AgCharts } = agCharts;
+	 const powerBiFills = [
+	    "#01B8AA", // 1
+	    "#374649", // 2
+	    "#FD625E", // 3
+	    "#F2C80F", // 4
+	    "#5F6B6D", // 5
+	    "#8AD4EB", // 6
+	    "#FE9666", // 7
+	    "#A66999", // 8
+    "#3599B8", // 9
+    "#DFBFBF"  // 10
+  ];
+	data=[{data_json}];
+
+const options = {{
+    container: document.getElementById("myChart"),
+    data: data,
+    series: [
+      {{
+        type: 'sunburst',
+        labelKey: 'name',
+        sizeKey: 'valueKey',
+        
+        // Telling AG Charts to color each distinct "name" from our fill list
+        colorKey: 'value',
+        fills: powerBiFills,
+        strokes: ['#000000']  // Outline color if desired
+      }}
+    ],
+    title: {{
+      text: "General Ledger Account Hierarchy (AG Grid)"
+    }}
+  }};
+       AgCharts.create(options);
+    </script>
+    """
+    #print(html)
+    return html
+	 
 
     
+def build_hierarchy_for_ag_charts(df):
+    """
+    Build a nested structure suitable for AG Charts sunburst.
+    AG Charts expects a root node -> children[] -> children[].
+    """
+    root = {"name": "General Ledger", "children": [], "value": 0}
+
+    # We'll keep nested dictionaries to group by each level.
+    # Then later we convert them into the list-of-children format.
+    level1_map = {}
+
+    for _, row in df.iterrows():
+        
+        l1 = str(row["accountType"])
+        l2 = str(row["accountSubType"])
+        l3 = str(row["fsCaption"])
+        l4 = str(row["glAccountName"])
+        value = float(row["total_amount"])
+
+        # Level 1
+        if l1 not in level1_map:
+            level1_map[l1] = {"name": l1, "children": {}, "value": 0}
+        level1_node = level1_map[l1]
+        level1_node["value"]+= value
+
+        # Level 2
+        if l2 not in level1_node["children"]:
+            level1_node["children"][l2] = {"name": l2, "children": {}, "value": 0}
+        level2_node = level1_node["children"][l2]
+        level2_node["value"]+= value
+
+        # Level 3
+        if l3 not in level2_node["children"]:
+            level2_node["children"][l3] = {"name": l3, "children": [], "value": 0}
+        level3_node = level2_node["children"][l3]
+        level3_node["value"] += value
+
+        # Level 4 => Leaf node with a value
+        level3_node["children"].append({
+            "name": l4,
+            "value": value,
+	    "valueKey": value
+        })
+
+    # Convert nested dicts into the children[] format
+    def dict_children_to_list(obj):
+        """ Recursively convert 'children' dict into a list for all levels. """
+        if isinstance(obj, dict) and "children" in obj:
+            # If children is a dict, transform into list
+            if isinstance(obj["children"], dict):
+                new_children = []
+                for _, child_dict in obj["children"].items():
+                    new_children.append(dict_children_to_list(child_dict))
+                obj["children"] = new_children
+            else:
+                # If children is already a list, ensure each item is processed
+                new_children = []
+                for child in obj["children"]:
+                    if isinstance(child, dict):
+                        new_children.append(dict_children_to_list(child))
+                    else:
+                        new_children.append(child)
+                obj["children"] = new_children
+        return obj
+
+    # Convert top-level
+    for key, child_dict in level1_map.items():
+        level1_map[key] = dict_children_to_list(child_dict)
+
+    root["children"] = list(level1_map.values())
+    root["value"] = sum(child["value"] for child in root["children"])
+    return root
 
 def generate_sunburst_html(data):
     data_json = json.dumps(data)  # Convert Python data to JSON for JavaScript
